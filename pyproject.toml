@@ -1,0 +1,9 @@
+[project]
+name = "scaffix"
+version = "1.0.0"
+description = "CLI tool to generate numbered folder structures"
+authors = [{ name = "Anoop Sonkriya" }]
+requires-python = ">=3.8"
+
+[project.scripts]
+scaffix = "scaffix.__main__:main"
