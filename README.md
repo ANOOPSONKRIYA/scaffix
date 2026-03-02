@@ -18,6 +18,10 @@ Goal: make repetitive workspace setup fast, safe, and predictable.
 - Optional zero padding (for example: `001`, `002`, `003`)
 - Create custom child directories in every parent folder
 - Preview and confirmation before filesystem changes
+- Colored output for better CLI readability
+- Cleaner tree-style preview formatting
+- Progress bar during folder generation
+- Error logging to `scaffix.log`
 - Idempotent creation (`exist_ok=True`) to avoid hard failures on reruns
 
 ---
@@ -116,7 +120,31 @@ For deeper internal flow, see `docs/PROJECT_GUIDE.md`.
 - Main entry function: `scaffix.cli.main()`
 - Safe cancellation: `Ctrl + C` exits cleanly
 - Errors are handled per folder to avoid stopping the whole run
+- Runtime errors are logged to `scaffix.log`
 - Current Python requirement: `>=3.8`
+
+### Dev setup
+
+```bash
+pip install -e .[dev]
+pre-commit install
+```
+
+Run checks locally:
+
+```bash
+black --check src tests
+pytest
+```
+
+---
+
+## 🚢 Release & Publishing
+
+- Semantic versioning is enabled using conventional commits.
+- `.github/workflows/semantic-release.yml` handles automated version/tag/release.
+- `.github/workflows/publish-pypi.yml` publishes to PyPI when a GitHub release is published.
+- For PyPI automation, configure a Trusted Publisher for this repository in PyPI.
 
 ---
 

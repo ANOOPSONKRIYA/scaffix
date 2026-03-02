@@ -4,7 +4,12 @@ __pycache__/
 *.pyd
 .env
 venv/
+.venv/
 dist/
 build/
 *.egg-info/
 .idea/
+.pytest_cache/
+.coverage
+htmlcov/
+scaffix.log

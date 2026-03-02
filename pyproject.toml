@@ -5,6 +5,9 @@ description = "A CLI tool to generate numbered folder structures with custom sub
 readme = "README.md"
 requires-python = ">=3.8"
 license = {text = "MIT"}
+dependencies = [
+    "colorama>=0.4.6",
+]
 authors = [
     {name = "Anoop Sonkriya"}
 ]
@@ -17,6 +20,36 @@ classifiers = [
 
 [project.scripts]
 scaffix = "scaffix.__main__:main"
+
+[project.optional-dependencies]
+dev = [
+    "black>=24.8.0",
+    "build>=1.2.2",
+    "pre-commit>=3.5.0",
+    "pytest>=8.3.0",
+    "pytest-cov>=5.0.0",
+    "python-semantic-release>=9.8.0",
+]
+
+[tool.black]
+line-length = 100
+target-version = ["py38"]
+
+[tool.pytest.ini_options]
+addopts = "--cov=scaffix --cov-report=term-missing --cov-fail-under=95"
+testpaths = ["tests"]
+
+[tool.semantic_release]
+branch = "main"
+changelog_file = "CHANGELOG.md"
+commit_parser = "conventional"
+tag_format = "v{version}"
+upload_to_pypi = false
+upload_to_release = true
+version_variables = [
+    "src/scaffix/__init__.py:__version__",
+    "pyproject.toml:project.version",
+]
 
 [build-system]
 requires = ["setuptools>=61.0"]
