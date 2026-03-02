@@ -2,6 +2,7 @@
 
 Scaffix is a simple and interactive CLI tool that generates numbered folder structures with custom subdirectories.
 
+![CI](https://github.com/ANOOPSONKRIYA/scaffix/actions/workflows/ci.yml/badge.svg)
 ![Version](https://img.shields.io/badge/version-1.0.0-blue)
 ![Python](https://img.shields.io/badge/python-3.8%2B-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
