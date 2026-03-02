@@ -5,7 +5,7 @@ Scaffix is a small interactive CLI that creates numbered folder structures with 
 Goal: make repetitive workspace setup fast, safe, and predictable.
 
 [![CI](https://github.com/ANOOPSONKRIYA/scaffix/actions/workflows/ci.yml/badge.svg)](https://github.com/ANOOPSONKRIYA/scaffix/actions/workflows/ci.yml)
-[![Version](https://img.shields.io/pypi/v/scaffix?label=Version)](https://pypi.org/project/scaffix/)
+[![Version](https://img.shields.io/pypi/v/scaffix?label=Version)](https://pypi.org/project/scaffix/#history)
 [![Python](https://img.shields.io/pypi/pyversions/scaffix?label=Python)](https://pypi.org/project/scaffix/)
 [![License](https://img.shields.io/github/license/ANOOPSONKRIYA/scaffix?label=License)](LICENSE)
 [![PyPI](https://img.shields.io/pypi/v/scaffix?label=PyPI)](https://pypi.org/project/scaffix/)
