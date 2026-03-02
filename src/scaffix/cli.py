@@ -1,7 +1,17 @@
 #!/usr/bin/env python3
 """
-Folder Generator CLI
-Creates numbered folders with custom subdirectories inside each.
+Interactive CLI for generating numbered folder structures.
+
+Execution flow:
+1) Collect user inputs (range, padding, subfolders, base path)
+2) Show a summary + small preview tree
+3) Ask for final confirmation
+4) Create directories safely with per-folder error handling
+
+Design goals:
+- Keep prompts beginner-friendly and explicit
+- Make behavior predictable and easy to trace
+- Remain idempotent by using `exist_ok=True`
 """
 
 import os
@@ -10,7 +20,7 @@ from scaffix import __version__
 
 
 def get_folder_range():
-    """Ask user for the folder naming range."""
+    """Prompt for the numeric folder range and validate boundaries."""
     print("\n" + "=" * 50)
     print("       📁 FOLDER GENERATOR CLI")
     print("=" * 50)
@@ -28,7 +38,11 @@ def get_folder_range():
 
 
 def get_zero_padding(end):
-    """Ask user if they want zero-padded names."""
+    """Ask whether folder names should be zero-padded.
+
+    Returns:
+        int: number of digits to use with zfill, or 0 for no padding.
+    """
     digits = len(str(end))
     while True:
         pad = input(f"\n🔹 Zero-pad folder names? (e.g., '01' instead of '1') [Y/n]: ").strip().lower()
@@ -41,7 +55,10 @@ def get_zero_padding(end):
 
 
 def get_subdirectories():
-    """Ask user for subdirectory names."""
+    """Prompt for comma-separated subdirectory names.
+
+    Empty input or only separators are rejected until valid names are provided.
+    """
     print("\n🔹 Enter subdirectory names to create inside EACH folder.")
     print("   (comma-separated, e.g.: code, task)")
 
@@ -58,7 +75,11 @@ def get_subdirectories():
 
 
 def get_base_path():
-    """Ask user for the base output directory."""
+    """Prompt for a base output directory and ensure it exists.
+
+    If the user leaves it empty, current working directory is used.
+    If the path does not exist, user is asked whether to create it.
+    """
     while True:
         path = input("\n🔹 Base path to create folders in (press Enter for current dir): ").strip()
         if not path:
@@ -79,11 +100,19 @@ def get_base_path():
 
 
 def confirm_and_create(base_path, start, end, padding, subdirs):
-    """Show summary and create folders after confirmation."""
+    """Preview the plan, ask confirmation, then create folder tree.
+
+    Args:
+        base_path (str): Target root directory.
+        start (int): Starting folder number (inclusive).
+        end (int): Ending folder number (inclusive).
+        padding (int): zfill width. Zero means no padding.
+        subdirs (list[str]): Child directories to create inside each folder.
+    """
     total_folders = end - start + 1
     total_dirs = total_folders * (1 + len(subdirs))
 
-    # --- Preview ---
+    # Summary helps users validate intent before any filesystem changes.
     print("\n" + "=" * 50)
     print("       📋 SUMMARY")
     print("=" * 50)
@@ -94,7 +123,7 @@ def confirm_and_create(base_path, start, end, padding, subdirs):
     print(f"  Total dirs     : {total_dirs}")
     print("=" * 50)
 
-    # --- Show tree preview ---
+    # Small tree preview gives confidence about naming + structure.
     print("\n  📂 Preview (first 3 folders):\n")
     for i in range(start, min(start + 3, end + 1)):
         name = str(i).zfill(padding) if padding else str(i)
@@ -104,13 +133,13 @@ def confirm_and_create(base_path, start, end, padding, subdirs):
     if total_folders > 3:
         print(f"    ... and {total_folders - 3} more folders")
 
-    # --- Confirm ---
+    # Hard stop on negative confirmation: no writes are performed.
     confirm = input("\n🔹 Proceed? [Y/n]: ").strip().lower()
     if confirm not in ("", "y", "yes"):
         print("\n❌ Cancelled. No folders created.")
         return
 
-    # --- Create ---
+    # Continue creating even if one folder fails, then report aggregate result.
     created = 0
     skipped = 0
     for i in range(start, end + 1):
@@ -127,7 +156,7 @@ def confirm_and_create(base_path, start, end, padding, subdirs):
             print(f"  ⚠️  Error creating '{name}': {e}")
             skipped += 1
 
-    # --- Result ---
+    # Final run summary.
     print("\n" + "=" * 50)
     print("       ✅ DONE!")
     print("=" * 50)
@@ -138,6 +167,7 @@ def confirm_and_create(base_path, start, end, padding, subdirs):
     print("=" * 50 + "\n")
 
 def main():
+    """Entry point for command-line execution."""
     if "--version" in sys.argv or "-v" in sys.argv:
         print(f"Scaffix v{__version__}")
         sys.exit(0)
