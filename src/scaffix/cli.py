@@ -6,6 +6,7 @@ Creates numbered folders with custom subdirectories inside each.
 
 import os
 import sys
+from scaffix import __version__
 
 
 def get_folder_range():
@@ -136,19 +137,11 @@ def confirm_and_create(base_path, start, end, padding, subdirs):
     print(f"  Location: {base_path}")
     print("=" * 50 + "\n")
 
-
 def main():
-    try:
-        start, end = get_folder_range()
-        padding = get_zero_padding(end)
-        subdirs = get_subdirectories()
-        base_path = get_base_path()
-        confirm_and_create(base_path, start, end, padding, subdirs)
-    except KeyboardInterrupt:
-        print("\n\n👋 Cancelled by user. Bye!")
+    if "--version" in sys.argv or "-v" in sys.argv:
+        print(f"Scaffix v{__version__}")
         sys.exit(0)
 
-def main():
     try:
         start, end = get_folder_range()
         padding = get_zero_padding(end)
