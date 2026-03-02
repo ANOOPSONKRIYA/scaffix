@@ -1,9 +1,23 @@
 [project]
 name = "scaffix"
 version = "1.0.0"
-description = "CLI tool to generate numbered folder structures"
-authors = [{ name = "Anoop Sonkriya" }]
+description = "A CLI tool to generate numbered folder structures with custom subdirectories."
+readme = "README.md"
 requires-python = ">=3.8"
+license = {text = "MIT"}
+authors = [
+    {name = "Anoop Sonkriya"}
+]
+keywords = ["cli", "folders", "scaffold", "generator"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
 
 [project.scripts]
 scaffix = "scaffix.__main__:main"
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"

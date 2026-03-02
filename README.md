@@ -6,6 +6,8 @@ Scaffix is a simple and interactive CLI tool that generates numbered folder stru
 ![Version](https://img.shields.io/badge/version-1.0.0-blue)
 ![Python](https://img.shields.io/badge/python-3.8%2B-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
+![PyPI](https://img.shields.io/pypi/v/scaffix)
+![Downloads](https://img.shields.io/pypi/dm/scaffix)
 
 ---
 
