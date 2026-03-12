@@ -69,8 +69,13 @@ def test_get_subdirectories_parses_and_trims(monkeypatch):
 
 
 def test_get_subdirectories_retries_on_empty_and_invalid(monkeypatch):
-    _mock_inputs(monkeypatch, ["", " , , ", "notes"])
+    _mock_inputs(monkeypatch, [" , , ", "notes"])
     assert cli.get_subdirectories() == ["notes"]
+
+
+def test_get_subdirectories_allows_empty_input(monkeypatch):
+    _mock_inputs(monkeypatch, [""])
+    assert cli.get_subdirectories() == []
 
 
 def test_get_base_path_uses_current_directory(monkeypatch, tmp_path):
@@ -122,6 +127,16 @@ def test_confirm_and_create_generates_folders(monkeypatch, tmp_path, capsys):
     assert (tmp_path / "01" / "code").is_dir()
     assert (tmp_path / "01" / "task").is_dir()
     assert (tmp_path / "02" / "code").is_dir()
+
+
+def test_confirm_and_create_generates_parent_only_folders(monkeypatch, tmp_path, capsys):
+    _mock_inputs(monkeypatch, [""])
+    cli.confirm_and_create(str(tmp_path), 1, 2, 0, [])
+
+    out = capsys.readouterr().out
+    assert "(none)" in out
+    assert (tmp_path / "1").is_dir()
+    assert (tmp_path / "2").is_dir()
 
 
 def test_confirm_and_create_reports_skipped_on_error(monkeypatch, tmp_path, capsys):

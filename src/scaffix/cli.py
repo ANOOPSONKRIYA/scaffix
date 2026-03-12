@@ -122,21 +122,22 @@ def get_zero_padding(end):
 
 
 def get_subdirectories():
-    """Prompt for comma-separated subdirectory names.
+    """Prompt for optional comma-separated subdirectory names.
 
-    Empty input or only separators are rejected until valid names are provided.
+    Users can press Enter to skip subdirectories and create only parent folders.
     """
-    print("\n🔹 Enter subdirectory names to create inside EACH folder.")
-    print("   (comma-separated, e.g.: code, task)")
+    print("\n🔹 Enter subdirectory names to create inside EACH folder (optional).")
+    print("   (comma-separated, e.g.: code, task | press Enter to skip)")
 
     while True:
         raw = input("   ➜ Subdirectories: ").strip()
         if not raw:
-            print(color_text("❌ Please enter at least one subdirectory name.", Fore.RED))
-            continue
+            return []
         subdirs = [s.strip() for s in raw.split(",") if s.strip()]
         if not subdirs:
-            print(color_text("❌ No valid names found. Try again.", Fore.RED))
+            print(
+                color_text("❌ No valid names found. Add names or press Enter to skip.", Fore.RED)
+            )
             continue
         return subdirs
 
@@ -187,7 +188,7 @@ def confirm_and_create(base_path, start, end, padding, subdirs):
     print(f"  Base Path      : {base_path}")
     print(f"  Folder Range   : {start} → {end} ({total_folders} folders)")
     print(f"  Zero-Padded    : {'Yes' if padding else 'No'}")
-    print(f"  Subdirectories : {', '.join(subdirs)}")
+    print(f"  Subdirectories : {', '.join(subdirs) if subdirs else '(none)'}")
     print(f"  Total dirs     : {total_dirs}")
     print(color_text("=" * 50, Fore.BLUE))
 
