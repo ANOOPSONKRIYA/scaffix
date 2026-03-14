@@ -17,6 +17,7 @@ Design goals:
 import logging
 import os
 import sys
+import argparse
 
 from colorama import Fore, Style, init
 
@@ -40,6 +41,93 @@ def configure_logging(log_file=LOG_FILE):
     LOGGER.addHandler(handler)
     LOGGER.propagate = False
     return LOGGER
+
+
+def parse_cli_args(argv=None):
+    """Parse optional non-interactive CLI arguments.
+
+    Supported flags:
+    - --start / --end: numeric range (must be provided together)
+    - --pad [N]: optional zero-padding width; if passed without value uses auto width from END
+    - --subdirs: comma-separated list, e.g. "code,task"
+    - --path: base output path
+    - --yes: auto-confirm and create --path if missing
+    - --version / -v: print version
+    """
+    parser = argparse.ArgumentParser(
+        prog="scaffix",
+        description="Generate numbered folder structures with optional subdirectories.",
+    )
+    parser.add_argument("--start", type=int, help="Start number (inclusive)")
+    parser.add_argument("--end", type=int, help="End number (inclusive)")
+    parser.add_argument(
+        "--pad",
+        nargs="?",
+        const="auto",
+        default=None,
+        help="Zero-padding width (e.g. --pad 3). Use --pad for auto width.",
+    )
+    parser.add_argument(
+        "--subdirs",
+        type=str,
+        default=None,
+        help="Comma-separated subdirectories (e.g. code,task,docs)",
+    )
+    parser.add_argument("--path", type=str, default=None, help="Base output path")
+    parser.add_argument("--yes", action="store_true", help="Skip confirmations and auto-create path")
+    parser.add_argument("--version", "-v", action="store_true", help="Show version and exit")
+    return parser.parse_args(argv)
+
+
+def parse_subdirs(value):
+    """Parse a comma-separated subdirectory string into a cleaned list."""
+    if value is None:
+        return None
+    return [name.strip() for name in value.split(",") if name.strip()]
+
+
+def resolve_padding(pad_value, end):
+    """Resolve padding from CLI flag value.
+
+    Returns:
+        int: number of digits for zfill, or 0 for no padding.
+    """
+    if pad_value == "auto":
+        return len(str(end))
+
+    try:
+        width = int(pad_value)
+    except (TypeError, ValueError) as exc:
+        raise ValueError("--pad must be an integer or omitted for auto padding.") from exc
+
+    if width < 0:
+        raise ValueError("--pad cannot be negative.")
+    return width
+
+
+def resolve_base_path(path=None, assume_yes=False):
+    """Resolve base output path for interactive and non-interactive flows.
+
+    If path is None, falls back to interactive prompt flow.
+    If path is provided and missing, creates it when assume_yes=True,
+    otherwise raises a ValueError.
+    """
+    if path is None:
+        return get_base_path()
+
+    resolved_path = os.path.expanduser(path)
+    if os.path.isdir(resolved_path):
+        return resolved_path
+
+    if not assume_yes:
+        raise ValueError(f"Base path '{resolved_path}' does not exist. Use --yes to create it.")
+
+    try:
+        os.makedirs(resolved_path, exist_ok=True)
+        return resolved_path
+    except OSError as exc:
+        LOGGER.exception("Failed to create base path: %s", resolved_path)
+        raise ValueError(f"Unable to create base path '{resolved_path}': {exc}") from exc
 
 
 def color_text(text, color):
@@ -181,7 +269,7 @@ def get_base_path():
                 print("   Okay, try a different path.")
 
 
-def confirm_and_create(base_path, start, end, padding, subdirs):
+def confirm_and_create(base_path, start, end, padding, subdirs, auto_confirm=False):
     """Preview the plan, ask confirmation, then create folder tree.
 
     Args:
@@ -210,10 +298,11 @@ def confirm_and_create(base_path, start, end, padding, subdirs):
     print(render_preview_tree(start, end, padding, subdirs, preview_limit=3))
 
     # Hard stop on negative confirmation: no writes are performed.
-    confirm = input("\n🔹 Proceed? [Y/n]: ").strip().lower()
-    if confirm not in ("", "y", "yes"):
-        print(color_text("\n❌ Cancelled. No folders created.", Fore.YELLOW))
-        return
+    if not auto_confirm:
+        confirm = input("\n🔹 Proceed? [Y/n]: ").strip().lower()
+        if confirm not in ("", "y", "yes"):
+            print(color_text("\n❌ Cancelled. No folders created.", Fore.YELLOW))
+            return
 
     # Continue creating even if one folder fails, then report aggregate result.
     created = 0
@@ -253,16 +342,27 @@ def main():
     """Entry point for command-line execution."""
     configure_logging()
 
-    if "--version" in sys.argv or "-v" in sys.argv:
-        print(f"Scaffix v{__version__}")
-        sys.exit(0)
-
     try:
-        start, end = get_folder_range()
-        padding = get_zero_padding(end)
-        subdirs = get_subdirectories()
-        base_path = get_base_path()
-        confirm_and_create(base_path, start, end, padding, subdirs)
+        args = parse_cli_args(sys.argv[1:])
+
+        if args.version:
+            print(f"Scaffix v{__version__}")
+            sys.exit(0)
+
+        if args.start is None and args.end is None:
+            start, end = get_folder_range()
+        elif args.start is not None and args.end is not None:
+            start, end = args.start, args.end
+            if end < start:
+                raise ValueError("--end must be greater than or equal to --start.")
+        else:
+            raise ValueError("--start and --end must be provided together.")
+
+        padding = get_zero_padding(end) if args.pad is None else resolve_padding(args.pad, end)
+        subdirs = get_subdirectories() if args.subdirs is None else parse_subdirs(args.subdirs)
+        base_path = resolve_base_path(path=args.path, assume_yes=args.yes)
+
+        confirm_and_create(base_path, start, end, padding, subdirs, auto_confirm=args.yes)
     except KeyboardInterrupt:
         print(color_text("\n\n👋 Cancelled by user. Bye!", Fore.YELLOW))
         sys.exit(0)

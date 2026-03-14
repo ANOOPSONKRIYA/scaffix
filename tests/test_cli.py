@@ -216,14 +216,88 @@ def test_main_happy_path(monkeypatch):
 
     called = {"value": False}
 
-    def fake_confirm(base_path, start, end, padding, subdirs):
+    def fake_confirm(base_path, start, end, padding, subdirs, auto_confirm=False):
         called["value"] = True
         assert base_path == "./demo"
         assert (start, end, padding, subdirs) == (1, 1, 2, ["code"])
+        assert auto_confirm is False
 
     monkeypatch.setattr(cli, "confirm_and_create", fake_confirm)
     cli.main()
     assert called["value"] is True
+
+
+def test_main_non_interactive_happy_path(monkeypatch, tmp_path):
+    output_path = tmp_path / "ci-output"
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "scaffix",
+            "--start",
+            "1",
+            "--end",
+            "3",
+            "--pad",
+            "2",
+            "--subdirs",
+            "code,task",
+            "--path",
+            str(output_path),
+            "--yes",
+        ],
+    )
+
+    monkeypatch.setattr(
+        cli,
+        "get_folder_range",
+        lambda: (_ for _ in ()).throw(AssertionError("interactive prompt should not be called")),
+    )
+    monkeypatch.setattr(
+        cli,
+        "get_zero_padding",
+        lambda _end: (_ for _ in ()).throw(AssertionError("interactive prompt should not be called")),
+    )
+    monkeypatch.setattr(
+        cli,
+        "get_subdirectories",
+        lambda: (_ for _ in ()).throw(AssertionError("interactive prompt should not be called")),
+    )
+
+    called = {"value": False}
+
+    def fake_confirm(base_path, start, end, padding, subdirs, auto_confirm=False):
+        called["value"] = True
+        assert base_path == str(output_path)
+        assert (start, end, padding, subdirs) == (1, 3, 2, ["code", "task"])
+        assert auto_confirm is True
+
+    monkeypatch.setattr(cli, "confirm_and_create", fake_confirm)
+
+    cli.main()
+    assert called["value"] is True
+    assert output_path.is_dir()
+
+
+def test_main_non_interactive_requires_start_and_end(monkeypatch, capsys):
+    monkeypatch.setattr(sys, "argv", ["scaffix", "--start", "1", "--yes"])
+    with pytest.raises(SystemExit) as exc_info:
+        cli.main()
+    assert exc_info.value.code == 1
+    assert "Unexpected error" in capsys.readouterr().out
+
+
+def test_main_non_interactive_path_without_yes_fails(monkeypatch, tmp_path, capsys):
+    missing = tmp_path / "missing-dir"
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        ["scaffix", "--start", "1", "--end", "1", "--path", str(missing)],
+    )
+    with pytest.raises(SystemExit) as exc_info:
+        cli.main()
+    assert exc_info.value.code == 1
+    assert "Unexpected error" in capsys.readouterr().out
 
 
 def test_module_entrypoint_calls_main(monkeypatch):
