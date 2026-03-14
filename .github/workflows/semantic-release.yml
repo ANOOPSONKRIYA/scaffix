@@ -33,7 +33,47 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -e .[dev]
 
-      - name: Semantic version and release
+      - name: Validate version sync
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          init_text = Path("src/scaffix/__init__.py").read_text(encoding="utf-8")
+          pyproject_text = Path("pyproject.toml").read_text(encoding="utf-8")
+
+          init_match = re.search(r'__version__\s*=\s*"([^"]+)"', init_text)
+          project_match = re.search(r'(?m)^version\s*=\s*"([^"]+)"\s*$', pyproject_text)
+
+          if not init_match or not project_match:
+              raise SystemExit("Could not parse versions from __init__.py/pyproject.toml")
+
+          if init_match.group(1) != project_match.group(1):
+              raise SystemExit(
+                  f"Version mismatch: __init__={init_match.group(1)} pyproject={project_match.group(1)}"
+              )
+          print(f"Version sync OK: {init_match.group(1)}")
+          PY
+
+      - name: Run tests
+        run: pytest
+
+      - name: Semantic version and GitHub release
+        id: semantic
+        uses: python-semantic-release/python-semantic-release@v10.4.1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build package for PyPI
+        if: steps.semantic.outputs.released == 'true'
+        run: |
+          python -m pip install build twine
+          python -m build
+          python -m twine check dist/*
+
+      - name: Publish package to PyPI
+        if: steps.semantic.outputs.released == 'true'
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: semantic-release version
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+        run: python -m twine upload dist/*

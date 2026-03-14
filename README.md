@@ -154,9 +154,11 @@ pytest
 ## 🚢 Release & Publishing
 
 - Semantic versioning is enabled using conventional commits.
-- `.github/workflows/semantic-release.yml` handles automated version/tag/release.
-- `.github/workflows/publish-pypi.yml` publishes to PyPI when a GitHub release is published.
-- For PyPI automation, configure a Trusted Publisher for this repository in PyPI.
+- `.github/workflows/semantic-release.yml` now runs end-to-end on every push to `main`:
+   - semantic version bump from conventional commits (`feat` = minor, `fix` = patch)
+   - GitHub tag + release
+   - PyPI publish using `PYPI_API_TOKEN`
+- `.github/workflows/publish-pypi.yml` is kept as manual fallback (`workflow_dispatch`) only.
 
 ---
 
@@ -170,7 +172,7 @@ pytest
 
 ## 🏷 Version
 
-Current version: 1.0.2
+Current version: 1.0.3
 
 ---
 

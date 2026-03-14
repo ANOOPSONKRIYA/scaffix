@@ -1,6 +1,6 @@
 [project]
 name = "scaffix"
-version = "1.0.2"
+version = "1.0.3"
 description = "A CLI tool to generate numbered folder structures with custom subdirectories."
 readme = "README.md"
 requires-python = ">=3.9"
