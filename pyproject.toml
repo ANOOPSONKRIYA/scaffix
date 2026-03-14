@@ -3,7 +3,7 @@ name = "scaffix"
 version = "1.0.1"
 description = "A CLI tool to generate numbered folder structures with custom subdirectories."
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 license = {text = "MIT"}
 dependencies = [
     "colorama>=0.4.6",
@@ -33,7 +33,7 @@ dev = [
 
 [tool.black]
 line-length = 100
-target-version = ["py38"]
+target-version = ["py39"]
 
 [tool.pytest.ini_options]
 addopts = "--cov=scaffix --cov-report=term-missing --cov-fail-under=95"

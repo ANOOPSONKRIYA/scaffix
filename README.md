@@ -133,7 +133,7 @@ For deeper internal flow, see `docs/PROJECT_GUIDE.md`.
 - Safe cancellation: `Ctrl + C` exits cleanly
 - Errors are handled per folder to avoid stopping the whole run
 - Runtime errors are logged to `scaffix.log`
-- Current Python requirement: `>=3.8`
+- Current Python requirement: `>=3.9`
 
 ### Dev setup
 
