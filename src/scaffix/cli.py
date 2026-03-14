@@ -129,9 +129,7 @@ def get_subdirectories():
     """
     while True:
         choice = (
-            input(
-                "\n🔹 Create subdirectories inside each folder? [y/N, Enter to skip]: "
-            )
+            input("\n🔹 Create subdirectories inside each folder? [y/N, Enter to skip]: ")
             .strip()
             .lower()
         )
@@ -151,9 +149,7 @@ def get_subdirectories():
         subdirs = [s.strip() for s in raw.split(",") if s.strip()]
         if not subdirs:
             print(
-                color_text(
-                    "❌ No valid names found. Add names or type 'skip' to cancel.", Fore.RED
-                )
+                color_text("❌ No valid names found. Add names or type 'skip' to cancel.", Fore.RED)
             )
             continue
         return subdirs
