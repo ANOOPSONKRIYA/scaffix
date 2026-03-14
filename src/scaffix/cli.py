@@ -124,19 +124,36 @@ def get_zero_padding(end):
 def get_subdirectories():
     """Prompt for optional comma-separated subdirectory names.
 
-    Users can press Enter to skip subdirectories and create only parent folders.
+    Users can press Enter with no input to skip the entire step and create
+    only parent folders.
     """
-    print("\n🔹 Enter subdirectory names to create inside EACH folder (optional).")
-    print("   (comma-separated, e.g.: code, task | press Enter to skip)")
+    while True:
+        choice = (
+            input(
+                "\n🔹 Create subdirectories inside each folder? [y/N, Enter to skip]: "
+            )
+            .strip()
+            .lower()
+        )
+        if choice in ("", "n", "no"):
+            return []
+        if choice in ("y", "yes"):
+            break
+        print(color_text("❌ Please enter Y or N.", Fore.RED))
+
+    print("   Enter subdirectory names to create inside EACH folder.")
+    print("   (comma-separated, e.g.: code, task | type 'skip' to cancel this step)")
 
     while True:
         raw = input("   ➜ Subdirectories: ").strip()
-        if not raw:
+        if not raw or raw.lower() == "skip":
             return []
         subdirs = [s.strip() for s in raw.split(",") if s.strip()]
         if not subdirs:
             print(
-                color_text("❌ No valid names found. Add names or press Enter to skip.", Fore.RED)
+                color_text(
+                    "❌ No valid names found. Add names or type 'skip' to cancel.", Fore.RED
+                )
             )
             continue
         return subdirs

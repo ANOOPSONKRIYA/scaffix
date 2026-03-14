@@ -17,6 +17,7 @@ Goal: make repetitive workspace setup fast, safe, and predictable.
 - Create parent folders in any numeric range (for example: `1` to `100`)
 - Optional zero padding (for example: `001`, `002`, `003`)
 - Optional custom child directories in every parent folder
+- Explicit skip option when you do not want folder-in-folder creation
 - Preview and confirmation before filesystem changes
 - Colored output for better CLI readability
 - Cleaner tree-style preview formatting
@@ -32,7 +33,7 @@ Scaffix follows a simple step-by-step flow:
 
 1. Ask for folder range (`start` and `end`)
 2. Ask whether names should be zero-padded
-3. Ask for optional comma-separated subdirectory names (press Enter to skip)
+3. Ask whether subdirectories are needed; press Enter with no input to skip for parent-only output
 4. Ask for base output path
 5. Show summary + preview tree
 6. Ask confirmation and then create directories
@@ -82,6 +83,7 @@ scaffix --version
 Enter START number: 1
 Enter END number: 5
 Zero-pad folder names? Y
+Create subdirectories inside each folder? Y
 Subdirectories: code, task
 Base path: ./demo
 ```
@@ -117,7 +119,7 @@ Quick parent-only example:
 Enter START number: 1
 Enter END number: 100
 Zero-pad folder names? N
-Subdirectories: <press Enter>
+Create subdirectories inside each folder? N
 Base path: ./demo
 ```
 
@@ -168,7 +170,7 @@ pytest
 
 ## 🏷 Version
 
-Current version: 1.0.0
+Current version: 1.0.1
 
 ---
 

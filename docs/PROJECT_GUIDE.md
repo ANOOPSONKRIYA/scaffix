@@ -31,8 +31,10 @@ Scaffix execution (`scaffix.cli.main`) runs in this order:
    - Returns padding width or `0`.
 
 3. `get_subdirectories()`
-   - Reads optional comma-separated values.
-   - Trims spaces and allows empty input to create only parent folders.
+   - First asks whether subdirectories are needed at all.
+   - Pressing Enter with no input skips subdirectory creation immediately.
+   - Reads optional comma-separated values only when enabled.
+   - Trims spaces and supports skipping back to parent-only folders.
 
 4. `get_base_path()`
    - Uses current working directory if blank.

@@ -64,17 +64,27 @@ def test_get_zero_padding_retries_on_invalid_choice(monkeypatch):
 
 
 def test_get_subdirectories_parses_and_trims(monkeypatch):
-    _mock_inputs(monkeypatch, [" code, task , docs "])
+    _mock_inputs(monkeypatch, ["y", " code, task , docs "])
     assert cli.get_subdirectories() == ["code", "task", "docs"]
 
 
 def test_get_subdirectories_retries_on_empty_and_invalid(monkeypatch):
-    _mock_inputs(monkeypatch, [" , , ", "notes"])
+    _mock_inputs(monkeypatch, ["yes", " , , ", "notes"])
     assert cli.get_subdirectories() == ["notes"]
 
 
-def test_get_subdirectories_allows_empty_input(monkeypatch):
+def test_get_subdirectories_allows_skipping_step(monkeypatch):
     _mock_inputs(monkeypatch, [""])
+    assert cli.get_subdirectories() == []
+
+
+def test_get_subdirectories_allows_skip_keyword_after_yes(monkeypatch):
+    _mock_inputs(monkeypatch, ["y", "skip"])
+    assert cli.get_subdirectories() == []
+
+
+def test_get_subdirectories_retries_on_invalid_yes_no_choice(monkeypatch):
+    _mock_inputs(monkeypatch, ["maybe", "n"])
     assert cli.get_subdirectories() == []
 
 
